@@ -55,7 +55,7 @@ public class DBConfig {
 		// src/main/resources 바로 밑에 있는 mappers 폴더 안에 작성된
 		// xml로 끝나는 모든 파일을 바라보겠다는 **(모두바라보기) 라는 표시 작성
 		// classpath = src/main/resources		줄임말 classpath
-		sfb.setMapperLocations(applicationContext.getResources("classpath:mmappers/**.xml"));
+		sfb.setMapperLocations(applicationContext.getResources("classpath:mappers/**.xml"));
 		
 		// DTO 모델이 모여있는 패키지 설정
 		// aliase = 별명,별칭 Aliases = 별칭들
@@ -84,7 +84,11 @@ public class DBConfig {
 		return new DataSourceTransactionManager(dataSource);
 	}
 	
-	
+	/** SqlSessionTemplate   DataSourceTransactionManager 차이
+	 *  SqlSessionTemplate 			 -> insert select update delete 실행
+	 *  DataSourceTransactionManager -> SqlSessionTemplate 실행한 결과를 Commit, Rollback
+	 *  DB 완벽히 저장을 하거나 되돌리는 작업
+	 * */
 	
 	
 	
