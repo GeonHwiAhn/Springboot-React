@@ -3,6 +3,7 @@ package todo.common.config;
 import javax.sql.DataSource;
 
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.ApplicationContext;
@@ -42,8 +43,15 @@ public class DBConfig {
 	
 	//***** 마이바티스 설정 추가 *****//
 	@Bean
-	public SqlSessionFactory sessionFactory(DataSource dataSource) {
-		SqlSessionFactoryBean sfb = new Sql
+	public SqlSessionFactory sessionFactory(DataSource dataSource) throws Exception{
+		SqlSessionFactoryBean sfb = new SqlSessionFactoryBean();
+		sfb.setDataSource(dataSource);
+		
+		// Select Insert Update Delete가 작성된 매퍼 파일이 모여있는 폴더 경로 설정
+		// src/main/resources 바로 밑에 있는 mappers 폴더 안에 작성된
+		// xml로 끝나는 모든 파일을 바라보겠다는 **(모두바라보기) 라는 표시 작성
+		// classpath = src/main/resources		줄임말 classpath
+		sfb.setMapperLocations(applicationContext.getResources("classpath:mmappers/**.xml"));
 	}
 	
 	
