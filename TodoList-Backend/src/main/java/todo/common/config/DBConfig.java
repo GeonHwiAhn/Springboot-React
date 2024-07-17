@@ -1,15 +1,19 @@
 package todo.common.config;
 
+import java.io.IOException;
+
 import javax.sql.DataSource;
 
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
+import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -43,7 +47,7 @@ public class DBConfig {
 	
 	//***** 마이바티스 설정 추가 *****//
 	@Bean
-	public SqlSessionFactory sessionFactory(DataSource dataSource) throws Exception{
+	public SqlSessionFactory sessionFactory(DataSource dataSource) throws Exception {
 		SqlSessionFactoryBean sfb = new SqlSessionFactoryBean();
 		sfb.setDataSource(dataSource);
 		
@@ -52,7 +56,36 @@ public class DBConfig {
 		// xml로 끝나는 모든 파일을 바라보겠다는 **(모두바라보기) 라는 표시 작성
 		// classpath = src/main/resources		줄임말 classpath
 		sfb.setMapperLocations(applicationContext.getResources("classpath:mmappers/**.xml"));
+		
+		// DTO 모델이 모여있는 패키지 설정
+		// aliase = 별명,별칭 Aliases = 별칭들
+		// DATABASE 작성한 컬럼명과 DTO에 작성한 컬럼명이 다를 때 별칭과 컬럼명이 일치하다는 것을 명시하기 위해
+		// DTO 위치 폴더를 작성
+		sfb.setTypeAliasesPackage("todo.dto"); //****추후 본인의 dto 패키지명으로 변경
+		
+		// 마이바티스에서 DB와 컬럼에 어떤 설정을 해주고 설정에 대한 정보를 어디에 작성했는지
+		// 마이바티스 설정 경로와 파일명 작성
+		sfb.setConfigLocation(applicationContext.getResource("classpath:mybatis-config.xml")); //**** 추후 파일명이나 경로가 변경된다면 경로나 파일명 변경 요망
+		return sfb.getObject();
+		
+		
 	}
+	
+	//기본 SQL 실행한다음 insert update delete 같은 경우 commit이나 rollback처리
+	@Bean
+	public SqlSessionTemplate sqlSessionTemplate(SqlSessionFactory sf) {
+		return new SqlSessionTemplate(sf);
+	}
+	
+	
+	//전반적인 commit과 rollback과 같은 관리를 해주는 트랜잭션 매니저
+	@Bean
+	public DataSourceTransactionManager dataSourceTransactionManager(DataSource dataSource) {
+		return new DataSourceTransactionManager(dataSource);
+	}
+	
+	
+	
 	
 	
 }
