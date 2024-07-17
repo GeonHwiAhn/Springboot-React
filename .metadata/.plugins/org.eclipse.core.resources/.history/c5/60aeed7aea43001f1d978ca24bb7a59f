@@ -1,0 +1,46 @@
+package todo.service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import todo.dto.Todo;
+import todo.dto.TodoMember;
+import todo.mapper.TodoMapper;
+
+@Service
+public class TodoServiceImpl implements TodoService {
+	
+	@Autowired
+	private TodoMapper mapper;
+	
+	@Override
+	public int idCheck(String id) {
+		return mapper.idCheck(id);
+	}
+	
+	@Override
+	public int signup(TodoMember member) {
+		return mapper.signup(member);
+	}
+	
+	@Override
+	public Map<String, Object> login(TodoMember member) {
+		TodoMember loginMember = mapper.login(member);
+		
+		Map<String, Object> mape = new HashMap<String, Object>();
+		map.put("loginMember", loginMember);
+		
+		//만약에 로그인한 멤버 정보가 조회되면 그 멤버가 작성한 투두리스트를 보여주겠다.
+		if(loginMember != null) {
+			List<Todo> todoList = mapper.selectTodoList(loginMember.getTodoMemberNo());
+			// map 형태로 프론트엔드 전달 todoList라는 이름(key)으로 todoList 내용(value) 전달
+			map.put("todoList", todoList);
+		}
+	}
+	
+	
+}

@@ -1,1 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="todo.mapper.TodoMapper">
+	<select id="idCheck">
+		SELECT COUNT(*) FROM TODO_MEMBER WHERE ID = #{id}
+	</select>
+	
+	<insert id="signup">
+		INSERT INTO TODO_MEMBER
+		VALUES (SEQ_TODO_MEMBER_NO.NEXTVAL, #{id}, #{pw}, #{name})
+	</insert>
+	
+	<select id="login" resultType="TodoMember">
+		SELECT * FROM TODO_MEMBER
+		WHERE ID = #{id}
+		AND	  PW = #{pw}
+	</select>
+	
+	
+	<!-- DB에 있는 TODO 테이블에서 해당 번호 할 일이 완료됐는지 isDone으로 완료여부 수정 -->
+	<update id="todoUpdate">
+		UPDATE TODO
+		SET IS_DONE = #{isDone}
+		WHERE TODO_NO = ${todoNo}
+	</update>
+	
+	<delete id="todoDelete">
+		DELETE FROM TODO
+		WHERE TODO_NO = ${todoNo}
+	</delete>
+	
+	<!-- 할일 추가하는 insert 
+	insert 특정 값을 DB에 넣기 전에 해당하는 값을 미리 가져와서 확인
+	
+	userGeneratedKeys 		 = 자동으로 생성된 키를 사용하도록 설정
+	selectKey order="BEFORE" = INSERT문이 실행되기 전에 select문을 실행하겠다라는 설정
+	resultType="_int" 		 = resultType="int" 모두 int 타입으로 지정된다는 의미
+	
+	SEQ_TODO_NO.NEXTVAL 특정 번호를 작성할 때 다수가 동시에 접속하여 회원가입을 동시에 진행할 때
+	각 고객이 회원가입완료 버튼을 누를 때 해당 번호를 사용해도되는지 사용 유무를 확인한 다음 insert를 진행
+	keyProperty = 선택된 값이 사용될 속성명
+	
+	위 조회가 종료된 다음에 insert 진행
+	
+	#의 경우 : 매핑된 객체에서 title 속성 값을 가져와 사용
+	default : 기본값 사용
+	${} : selectKey에서 선택된 todoNo 값을 사용
+	
+	#{}, ${} 차이
+	#{} = 사용자 입력값을 안전하게 처리해야하는 경우 동적 쿼리를 생성하지 않아도 되는 경우 SQL 인젝션 공격 방지
+	${} = 동적 테이블 이름이나 컬럼 이름을 사용해야 하는 경우, SQL 특정 구문을 동적으로 변경해야 하는 경우
+			입력한 값이 신뢰할 수 있고, SQL 인젝션 위험이 없는 경우
+	인젝션 = injection = SQL 들어가기 전에 조작된 쿼리를 삽입
+	
+	order="BEFORE" insert하기 전에 조회하는 것
+	
+	order="AFTER"  insert한 다음에 결과를 보는 것
+	-->
+	<insert id="todoInsert" useGeneratedKeys="true">
+		<selectKey order="BEFORE" keyProperty="todoNo" resultType="_int">
+			SELECT SEQ_TODO_NO.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO TODO
+		VALUES(${todoNo}, #{title}, default, ${todoMemberNo})
+	</insert>
+</mapper>
