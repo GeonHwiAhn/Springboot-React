@@ -1,0 +1,8 @@
+server.port = 9007
+logging.level.todo = debug
+
+server.servlet.session.tracking-modes=cookie
+
+spring.devtools.livereload.enabled=true
+spring.devtools.restart.enabled=true
+spring.thymeleaf.cache=false
